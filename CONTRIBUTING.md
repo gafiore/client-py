@@ -1,7 +1,7 @@
 How To Contribute
 =================
 
-Every open source project lives from the generous help by contributors and fhirclient is no different.
+Every open source project lives from the generous help of contributors and fhirclient is no different.
 
 To make participation as pleasant as possible, this project adheres to the [Code of Conduct][] by the Python Software Foundation.
 
