@@ -9,10 +9,10 @@ if abspath not in sys.path:
 
 from server import FHIRServer, FHIRUnauthorizedException, FHIRNotFoundException
 
-__version__ = '1.0.2'
+__version__ = '1.0.4'
 __author__ = 'SMART Platforms Team'
 __license__ = 'APACHE2'
-__copyright__ = "Copyright 2015 Boston Children's Hospital"
+__copyright__ = "Copyright 2016 Boston Children's Hospital"
 
 scope_default = 'user/*.* patient/*.read openid profile'
 scope_haslaunch = 'launch'
@@ -64,6 +64,11 @@ class FHIRClient(object):
         
         # init from settings dict
         elif settings is not None:
+            if not 'app_id' in settings:
+                raise Exception("Must provide 'app_id' in settings dictionary")
+            if not 'api_base' in settings:
+                raise Exception("Must provide 'api_base' in settings dictionary")
+            
             self.app_id = settings['app_id']
             self.redirect = settings.get('redirect_uri')
             self.patient_id = settings.get('patient_id')
@@ -91,9 +96,25 @@ class FHIRClient(object):
     @property
     def ready(self):
         """ Returns True if the client is ready to make API calls (e.g. there
-        is an access token).
+        is an access token or this is an open server).
+        
+        :returns: True if the server can make authenticated calls
         """
         return self.server.ready if self.server is not None else False
+    
+    def prepare(self):
+        """ Returns True if the client is ready to make API calls (e.g. there
+        is an access token or this is an open server). In contrast to the
+        `ready` property, this method will fetch the server's Conformance
+        statement if it hasn't yet been fetched.
+        
+        :returns: True if the server can make authenticated calls
+        """
+        if self.server:
+            if self.server.ready:
+                return True
+            return self.server.prepare()
+        return False
     
     @property
     def authorize_url(self):
